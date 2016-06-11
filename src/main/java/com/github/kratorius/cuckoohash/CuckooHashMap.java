@@ -65,6 +65,10 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
 
   @Override
   public V get(Object key) {
+    if (key == null) {
+      throw new NullPointerException();
+    }
+
     MapEntry<K, V> v1 = T1[hash1(key)];
     MapEntry<K, V> v2 = T2[hash2(key)];
 
@@ -80,6 +84,10 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
 
   @Override
   public V put(K key, V value) {
+    if (key == null) {
+      throw new NullPointerException();
+    }
+
     final V old = get(key);
     MapEntry<K, V> v;
 
