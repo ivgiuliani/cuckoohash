@@ -36,8 +36,9 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
    */
   @SuppressWarnings("unchecked")
   public CuckooHashMap() {
-    T1 = new MapEntry[DEFAULT_START_SIZE];
-    T2 = new MapEntry[DEFAULT_START_SIZE];
+    // Capacity is meant to be the total capacity of the two internal tables.
+    T1 = new MapEntry[DEFAULT_START_SIZE / 2];
+    T2 = new MapEntry[DEFAULT_START_SIZE / 2];
   }
 
   /**
@@ -51,8 +52,10 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
     if (initialCapacity <= 0) {
       throw new IllegalArgumentException("initial capacity must be strictly positive");
     }
-    T1 = new MapEntry[initialCapacity];
-    T2 = new MapEntry[initialCapacity];
+
+    initialCapacity = roundPowerOfTwo(initialCapacity);
+    T1 = new MapEntry[initialCapacity / 2];
+    T2 = new MapEntry[initialCapacity / 2];
   }
 
   @Override
@@ -320,5 +323,17 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
     hash = secondaryHash(hash);
 
     return hash & (T2.length - 1);
+  }
+
+  static int roundPowerOfTwo(int n) {
+    n--;
+
+    n |= n >>> 1;
+    n |= n >>> 2;
+    n |= n >>> 4;
+    n |= n >>> 8;
+    n |= n >>> 16;
+
+    return (n < 0) ? 1 : n + 1;
   }
 }
