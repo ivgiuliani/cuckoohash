@@ -1,37 +1,62 @@
 package com.github.kratorius.cuckoohash;
 
 import junit.framework.TestCase;
+import org.junit.Before;
 
 import java.util.Map;
 
 public class CuckooHashMapTest extends TestCase {
+  private CuckooHashMap<Character, Boolean> mCB;
+
+  @Before
+  public void setUp() {
+    mCB = new CuckooHashMap<>();
+  }
+
   @SuppressWarnings("UnnecessaryBoxing")
   public void testMap() {
-    Map<Character,Boolean> m = new CuckooHashMap<Character, Boolean>();
-    put(m, 'A', true,  null);
-    put(m, 'A', false, true); // Guaranteed identical by JLS
-    put(m, 'B', true,  null);
-    put(m, new Character('A'), false, false);
+    put(mCB, 'A', true,  null);
+    put(mCB, 'A', false, true); // Guaranteed identical by JLS
+    put(mCB, 'B', true,  null);
+    put(mCB, new Character('A'), false, false);
 
     try {
-      m.get(null);
+      mCB.get(null);
       fail("map did not reject null key");
     } catch (NullPointerException e) {
       // expected.
     }
 
     try {
-      m.put(null, true);
+      mCB.put(null, true);
       fail("map did not reject null key");
     } catch (NullPointerException e) {
       // expected.
     }
 
     try {
-      m.put('C', null);
+      mCB.put('C', null);
     } catch (NullPointerException e) {
       fail("Rejected null value");
     }
+  }
+
+  public void testContainsKey() {
+    try {
+      mCB.containsKey(null);
+      fail("accepted null key");
+    } catch (NullPointerException e) {
+      // Expected.
+    }
+
+    mCB.put('A', true);
+    mCB.put('B', true);
+    mCB.put('C', true);
+
+    assertTrue(mCB.containsKey('A'));
+    assertTrue(mCB.containsKey('B'));
+    assertTrue(mCB.containsKey('C'));
+    assertFalse(mCB.containsKey('D'));
   }
 
   private static void put(Map<Character, Boolean> m,
