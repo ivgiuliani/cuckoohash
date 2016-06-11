@@ -2,7 +2,15 @@ package com.github.kratorius.cuckoohash;
 
 import java.util.*;
 
-public class CuckooHashMap<K, V> extends AbstractMap<K, V> {
+/**
+ * Cuckoo hash table based implementation of the <tt>Map</tt> interface.
+ *
+ * @param <K>  the type of keys maintained by this map
+ * @param <V>  the type of mapped values
+ */
+public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
+  // TODO implement Cloneable and Serializable
+
   private static final Random RANDOM = new Random();
 
   private static final int THRESHOLD_LOOP = 8;
@@ -23,12 +31,21 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> {
   private MapEntry<K, V>[] T1;
   private MapEntry<K, V>[] T2;
 
+  /**
+   * Constructs an empty <tt>CuckooHashMap</tt> with the default initial capacity (16).
+   */
   @SuppressWarnings("unchecked")
   public CuckooHashMap() {
     T1 = new MapEntry[DEFAULT_START_SIZE];
     T2 = new MapEntry[DEFAULT_START_SIZE];
   }
 
+  /**
+   * Constructs an empty <tt>CuckooHashMap</tt> with the specified initial capacity.
+   * The given capacity will be rounded to the nearest power of two.
+   *
+   * @param initialCapacity  the initial capacity.
+   */
   @SuppressWarnings("unchecked")
   public CuckooHashMap(int initialCapacity) {
     if (initialCapacity <= 0) {
