@@ -253,7 +253,7 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
 
   @Override
   public Set<K> keySet() {
-    Set<K> set = new HashSet<>();
+    Set<K> set = new HashSet<>(size);
     for (int i = 0; i < T1.length; i++) {
       if (T1[i] != null) {
         set.add(T1[i].key);
