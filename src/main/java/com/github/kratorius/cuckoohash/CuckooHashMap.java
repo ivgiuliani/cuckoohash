@@ -105,42 +105,46 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
   }
 
   /**
-   * @return the key we failed to move because of collisions.
+   * @return the key we failed to move because of collisions or <tt>null</tt> if
+   * successful.
    */
   private MapEntry<K, V> putSafe(K key, V value) {
+    MapEntry<K, V> newV, t1, t2;
     int loop = 0;
 
     while (loop++ < THRESHOLD_LOOP) {
-      MapEntry<K, V> newV = new MapEntry<>(key, value);
-      MapEntry<K, V> v1 = T1[hash1(key)];
-      MapEntry<K, V> v2 = T2[hash2(key)];
+      newV = new MapEntry<>(key, value);
+      t1 = T1[hash1(key)];
+      t2 = T2[hash2(key)];
 
       // Check if we must just update the value first.
-      if (v1 != null && v1.key.equals(key)) {
+      if (t1 != null && t1.key.equals(key)) {
         T1[hash1(key)] = newV;
         return null;
       }
-      if (v2 != null && v2.key.equals(key)) {
+      if (t2 != null && t2.key.equals(key)) {
         T2[hash2(key)] = newV;
         return null;
       }
 
-      if (v1 == null) {
+      if (t1 == null) {
         T1[hash1(key)] = newV;
         return null;
-      } else if (v2 == null) {
+      } else if (t2 == null) {
         T2[hash2(key)] = newV;
         return null;
       } else {
+        // Both tables have an item in the required position, we need to
+        // move things around.
         if (RANDOM.nextBoolean()) {
           // move from T1
-          key = v1.key;
-          value= v1.value;
+          key = t1.key;
+          value= t1.value;
           T1[hash1(key)] = newV;
         } else {
           // move from T2
-          key = v2.key;
-          value= v2.value;
+          key = t2.key;
+          value= t2.value;
           T2[hash2(key)] = newV;
         }
       }
