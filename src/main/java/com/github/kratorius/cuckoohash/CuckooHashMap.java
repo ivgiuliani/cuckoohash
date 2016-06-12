@@ -259,7 +259,7 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
 
   @Override
   public Collection<V> values() {
-    List<V> values = new ArrayList<>();
+    List<V> values = new ArrayList<>(size);
     for (int i = 0; i < T1.length; i++) {
       if (T1[i] != null) {
         values.add(T1[i].value);
