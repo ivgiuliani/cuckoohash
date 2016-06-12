@@ -182,6 +182,14 @@ public class CuckooHashMapTest extends TestCase {
     assertFalse(entrySet.contains(new AbstractMap.SimpleEntry<>('B', true)));
   }
 
+  public void testGetOrDefault() {
+    assertTrue(mCB.getOrDefault('A', true));
+    assertFalse(mCB.getOrDefault('A', false));
+
+    mCB.put('A', true);
+    assertTrue(mCB.getOrDefault('A', false));
+  }
+
   public void testContainsValue() {
     assertFalse(mCB.containsValue(true));
     assertFalse(mCB.containsValue(false));

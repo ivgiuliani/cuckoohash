@@ -333,7 +333,7 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
     return hash & (T2.length - 1);
   }
 
-  static int roundPowerOfTwo(int n) {
+  private static int roundPowerOfTwo(int n) {
     n--;
 
     n |= n >>> 1;
