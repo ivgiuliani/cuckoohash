@@ -16,6 +16,7 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
   private static final int THRESHOLD_LOOP = 8;
   private static final int DEFAULT_START_SIZE = 16;
 
+  private int defaultStartSize = DEFAULT_START_SIZE;
   private int size = 0;
 
   /**
@@ -40,8 +41,8 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
   @SuppressWarnings("unchecked")
   public CuckooHashMap() {
     // Capacity is meant to be the total capacity of the two internal tables.
-    T1 = new MapEntry[DEFAULT_START_SIZE / 2];
-    T2 = new MapEntry[DEFAULT_START_SIZE / 2];
+    T1 = new MapEntry[defaultStartSize / 2];
+    T2 = new MapEntry[defaultStartSize / 2];
   }
 
   /**
@@ -57,6 +58,7 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
     }
 
     initialCapacity = roundPowerOfTwo(initialCapacity);
+    defaultStartSize = initialCapacity;
     T1 = new MapEntry[initialCapacity / 2];
     T2 = new MapEntry[initialCapacity / 2];
   }
@@ -182,8 +184,8 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
   @Override
   public void clear() {
     size = 0;
-    T1 = new MapEntry[DEFAULT_START_SIZE];
-    T2 = new MapEntry[DEFAULT_START_SIZE];
+    T1 = new MapEntry[defaultStartSize / 2];
+    T2 = new MapEntry[defaultStartSize / 2];
   }
 
   private void rehash() {
