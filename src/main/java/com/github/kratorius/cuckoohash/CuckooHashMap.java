@@ -18,11 +18,14 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
 
   private int size = 0;
 
+  /**
+   * Immutable container of entries in the map.
+   */
   private static class MapEntry<K1, V1> {
     final K1 key;
     final V1 value;
 
-    MapEntry(K1 key, V1 value) {
+    MapEntry(final K1 key, final V1 value) {
       this.key = key;
       this.value = value;
     }
