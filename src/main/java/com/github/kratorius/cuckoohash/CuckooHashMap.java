@@ -100,7 +100,10 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
       value = v.value;
     }
 
-    size++;
+    if (old == null) {
+      // Do not increase the size if we're replacing the item.
+      size++;
+    }
 
     return old;
   }
