@@ -3,6 +3,11 @@ package com.github.kratorius.cuckoohash;
 import junit.framework.TestCase;
 import org.junit.Before;
 
+import java.util.*;
+
+/**
+ * Tests for basic behaviour of all the cuckoo hash map's methods.
+ */
 public class CuckooHashMapTest extends TestCase {
   private CuckooHashMap<Character, Boolean> mCB;
 
@@ -122,5 +127,71 @@ public class CuckooHashMapTest extends TestCase {
     assertTrue(mCB.containsKey('B'));
     assertTrue(mCB.containsKey('C'));
     assertFalse(mCB.containsKey('D'));
+  }
+
+  public void testPutAll() {
+    HashMap<Character, Boolean> copy = new HashMap<>();
+    copy.put('A', true);
+    copy.put('B', false);
+    copy.put('C', true);
+    copy.put('D', false);
+
+    assertTrue(mCB.isEmpty());
+    mCB.putAll(copy);
+    assertFalse(mCB.isEmpty());
+
+    assertEquals(true, (boolean) mCB.get('A'));
+    assertEquals(false, (boolean) mCB.get('B'));
+    assertEquals(true, (boolean) mCB.get('C'));
+    assertEquals(false, (boolean) mCB.get('D'));
+  }
+
+  public void testKeySet() {
+    mCB.put('A', true);
+    mCB.put('B', true);
+    mCB.put('C', true);
+
+    Set<Character> keySet = mCB.keySet();
+    assertTrue(keySet.contains('A'));
+    assertTrue(keySet.contains('B'));
+    assertTrue(keySet.contains('C'));
+    assertFalse(keySet.contains('D'));
+  }
+
+  public void testValues() {
+    mCB.put('A', true);
+    mCB.put('B', true);
+    mCB.put('C', true);
+
+    Collection<Boolean> valueSet = mCB.values();
+    assertTrue(valueSet.contains(true));
+    assertFalse(valueSet.contains(false));
+  }
+
+  public void testEntrySet() {
+    mCB.put('A', true);
+    mCB.put('B', false);
+    mCB.put('C', true);
+
+    Set<Map.Entry<Character, Boolean>> entrySet = mCB.entrySet();
+    assertEquals(3, entrySet.size());
+
+    assertTrue(entrySet.contains(new AbstractMap.SimpleEntry<>('A', true)));
+    assertTrue(entrySet.contains(new AbstractMap.SimpleEntry<>('B', false)));
+    assertTrue(entrySet.contains(new AbstractMap.SimpleEntry<>('C', true)));
+    assertFalse(entrySet.contains(new AbstractMap.SimpleEntry<>('B', true)));
+  }
+
+  public void testContainsValue() {
+    assertFalse(mCB.containsValue(true));
+    assertFalse(mCB.containsValue(false));
+
+    mCB.put('A', true);
+    assertTrue(mCB.containsValue(true));
+    assertFalse(mCB.containsValue(false));
+
+    mCB.put('B', false);
+    assertTrue(mCB.containsValue(true));
+    assertTrue(mCB.containsValue(false));
   }
 }

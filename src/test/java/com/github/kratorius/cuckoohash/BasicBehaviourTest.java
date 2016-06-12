@@ -5,7 +5,7 @@ import junit.framework.TestCase;
 import java.util.Map;
 
 /**
- * Tests for basic map behaviour.
+ * Tests for the basic map behaviour.
  */
 public class BasicBehaviourTest extends TestCase {
   @SuppressWarnings("UnnecessaryBoxing")
