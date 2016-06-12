@@ -202,4 +202,19 @@ public class CuckooHashMapTest extends TestCase {
     assertTrue(mCB.containsValue(true));
     assertTrue(mCB.containsValue(false));
   }
+
+  public void testInitialSize() {
+    CuckooHashMap<String, Integer> m = new CuckooHashMap<>(1000);
+    assertTrue(m.isEmpty());
+
+    for (int i = 0; i < 5000; i++) {
+      m.put("i=" + i, i);
+    }
+
+    assertEquals(5000, m.size());
+
+    for (int i = 0; i < 5000; i++) {
+      assertEquals(i, (int) m.get("i=" + i));
+    }
+  }
 }
