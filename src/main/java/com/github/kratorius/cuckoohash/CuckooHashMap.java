@@ -96,7 +96,8 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
 
     while ((v = putSafe(key, value)) != null) {
       rehash();
-      put(v.key, v.value);
+      key = v.key;
+      value = v.value;
     }
 
     size++;
