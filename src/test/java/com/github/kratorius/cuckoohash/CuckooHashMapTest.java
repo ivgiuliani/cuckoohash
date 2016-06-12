@@ -52,6 +52,60 @@ public class CuckooHashMapTest extends TestCase {
     assertNull(mCB.get('A'));
   }
 
+  public void testClear() {
+    assertTrue(mCB.isEmpty());
+
+    mCB.clear();
+    assertTrue(mCB.isEmpty());
+
+    mCB.put('A', true);
+    mCB.put('B', false);
+    assertEquals(2, mCB.size());
+
+    mCB.clear();
+    assertTrue(mCB.isEmpty());
+    assertNull(mCB.get('A'));
+    assertNull(mCB.get('B'));
+  }
+
+  public void testSize() {
+    assertEquals(0, mCB.size());
+
+    mCB.put('A', true);
+    assertEquals(1, mCB.size());
+
+    mCB.put('B', true);
+    assertEquals(2, mCB.size());
+
+    mCB.remove('C');
+    assertEquals(2, mCB.size());
+
+    mCB.remove('A');
+    assertEquals(1, mCB.size());
+
+    mCB.remove('B');
+    assertEquals(0, mCB.size());
+  }
+
+  public void testIsEmpty() {
+    assertTrue(mCB.isEmpty());
+
+    mCB.put('A', true);
+    assertFalse(mCB.isEmpty());
+
+    mCB.put('B', true);
+    assertFalse(mCB.isEmpty());
+
+    mCB.remove('C');
+    assertFalse(mCB.isEmpty());
+
+    mCB.remove('A');
+    assertFalse(mCB.isEmpty());
+
+    mCB.remove('B');
+    assertTrue(mCB.isEmpty());
+  }
+
   public void testContainsKey() {
     try {
       mCB.containsKey(null);
