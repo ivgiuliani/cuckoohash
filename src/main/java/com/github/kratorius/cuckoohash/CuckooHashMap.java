@@ -70,6 +70,16 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
 
   @Override
   public V get(Object key) {
+    return get(key, null);
+  }
+
+  @SuppressWarnings("Since15")
+  @Override
+  public V getOrDefault(Object key, V defaultValue) {
+    return get(key, defaultValue);
+  }
+
+  private V get(Object key, V defaultValue) {
     if (key == null) {
       throw new NullPointerException();
     }
@@ -78,13 +88,13 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
     MapEntry<K, V> v2 = T2[hash2(key)];
 
     if (v1 == null && v2 == null) {
-      return null;
+      return defaultValue;
     } else if (v1 != null && v1.key.equals(key)) {
       return v1.value;
     } else if (v2 != null && v2.key.equals(key)) {
       return v2.value;
     }
-    return null;
+    return defaultValue;
   }
 
   @Override
@@ -140,8 +150,7 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
         T2[hash2(key)] = newV;
         return null;
       } else {
-        // Both tables have an item in the required position, we need to
-        // move things around.
+        // Both tables have an item in the required position, we need to move things around.
         if (RANDOM.nextBoolean()) {
           // move from T1
           key = t1.key;
@@ -300,16 +309,6 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
   @Override
   protected void finalize() throws Throwable {
     super.finalize();
-  }
-
-  @SuppressWarnings("Since15")
-  @Override
-  public V getOrDefault(Object key, V defaultValue) {
-    V value = get(key);
-    if (value == null) {
-      value = defaultValue;
-    }
-    return value;
   }
 
   /**
