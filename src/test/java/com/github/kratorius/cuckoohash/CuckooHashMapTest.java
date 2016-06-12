@@ -3,14 +3,53 @@ package com.github.kratorius.cuckoohash;
 import junit.framework.TestCase;
 import org.junit.Before;
 
-import java.util.Map;
-
 public class CuckooHashMapTest extends TestCase {
   private CuckooHashMap<Character, Boolean> mCB;
 
   @Before
   public void setUp() {
     mCB = new CuckooHashMap<>();
+  }
+
+  public void testPut() {
+    assertTrue(mCB.isEmpty());
+    mCB.put('A', true);
+    mCB.put('B', false);
+    assertFalse(mCB.isEmpty());
+
+    assertEquals(true, (boolean) mCB.get('A'));
+    assertEquals(false, (boolean) mCB.get('B'));
+    assertNull(mCB.get('C'));
+  }
+
+  public void testGet() {
+    assertTrue(mCB.isEmpty());
+    assertNull(mCB.get('A'));
+
+    mCB.put('A', true);
+    assertEquals(true, (boolean) mCB.get('A'));
+    assertFalse(mCB.isEmpty());
+  }
+
+  public void testRemove() {
+    assertTrue(mCB.isEmpty());
+
+    // Should never fail if the key didn't exist.
+    assertNull(mCB.remove('A'));
+    assertNull(mCB.remove('B'));
+    assertNull(mCB.remove('C'));
+
+    mCB.put('A', true);
+    mCB.put('B', false);
+    assertEquals(2, mCB.size());
+
+    assertEquals(false, (boolean) mCB.remove('B'));
+    assertEquals(1, mCB.size());
+    assertNull(mCB.get('B'));
+
+    assertEquals(true, (boolean) mCB.remove('A'));
+    assertEquals(0, mCB.size());
+    assertNull(mCB.get('A'));
   }
 
   public void testContainsKey() {
