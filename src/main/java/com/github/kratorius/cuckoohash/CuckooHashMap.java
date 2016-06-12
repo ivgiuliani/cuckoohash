@@ -195,7 +195,6 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
     } while (!rehash(newSize));
   }
 
-  // TODO this is a naive and inefficient rehash, needs a better one.
   @SuppressWarnings("unchecked")
   private boolean rehash(final int newSize) {
     // Save old state as we may need to restore it if the rehash fails.
@@ -275,7 +274,7 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
 
   @Override
   public Set<Entry<K, V>> entrySet() {
-    Set<Entry<K, V>> entrySet = new HashSet<>();
+    Set<Entry<K, V>> entrySet = new HashSet<>(size);
     for (K key : keySet()) {
       entrySet.add(new SimpleEntry<>(key, get(key)));
     }
