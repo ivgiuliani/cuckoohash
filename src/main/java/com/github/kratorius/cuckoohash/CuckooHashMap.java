@@ -188,31 +188,28 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
   // TODO this is a naive and inefficient rehash, needs a better one.
   @SuppressWarnings("unchecked")
   private boolean rehash(final int newSize) {
-    List<MapEntry<K, V>> lst = new ArrayList<>();
-    for (int i = 0; i < T1.length; i++) {
-      MapEntry<K, V> v1 = T1[i];
-      MapEntry<K, V> v2 = T2[i];
-      if (v1 != null) {
-        lst.add(v1);
-      }
-      if (v2 != null) {
-        lst.add(v2);
-      }
-    }
-
     // Save old state as we may need to restore it if the rehash fails.
     MapEntry<K, V>[] oldT1 = T1;
     MapEntry<K, V>[] oldT2 = T2;
 
+    // Already point T1 and T2 to the new tables since putSafe operates on them.
     T1 = new MapEntry[newSize];
     T2 = new MapEntry[newSize];
 
-    for (MapEntry<K, V> v : lst) {
-      if (putSafe(v.key, v.value) != null) {
-        // We need to rehash again, so restore old state.
-        T1 = oldT1;
-        T2 = oldT2;
-        return false;
+    for (int i = 0; i < oldT1.length; i++) {
+      if (oldT1[i] != null) {
+        if (putSafe(oldT1[i].key, oldT1[i].value) != null) {
+          T1 = oldT1;
+          T2 = oldT2;
+          return false;
+        }
+      }
+      if (oldT2[i] != null) {
+        if (putSafe(oldT2[i].key, oldT2[i].value) != null) {
+          T1 = oldT1;
+          T2 = oldT2;
+          return false;
+        }
       }
     }
 
