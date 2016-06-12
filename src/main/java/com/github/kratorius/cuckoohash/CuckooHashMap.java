@@ -155,14 +155,14 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
     if (v1 != null && v1.key.equals(key)) {
       oldValue = T1[hash1(key)].value;
       T1[hash1(key)] = null;
+      size--;
     }
 
     if (v2 != null && v2.key.equals(key)) {
       oldValue = T2[hash2(key)].value;
       T2[hash2(key)] = null;
+      size--;
     }
-
-    size--;
 
     return oldValue;
   }
