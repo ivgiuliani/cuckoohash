@@ -217,4 +217,31 @@ public class CuckooHashMapTest extends TestCase {
       assertEquals(i, (int) m.get("i=" + i));
     }
   }
+
+  public void testLoadFactor_zeroIsNotValid() {
+    try {
+      new CuckooHashMap<>(0.f);
+      fail("0.0f accepted as a valid load factor.");
+    } catch (IllegalArgumentException ex) {
+      // Expected.
+    }
+  }
+
+  public void testLoadFactor_lessThanZero() {
+    try {
+      new CuckooHashMap<>(-0.1f);
+      fail("negative number accepted as a valid load factor.");
+    } catch (IllegalArgumentException ex) {
+      // Expected.
+    }
+  }
+
+  public void testLoadFactor_greaterThanOne() {
+    try {
+      new CuckooHashMap<>(1.01f);
+      fail("load factor > 1.f accepted as a valid .");
+    } catch (IllegalArgumentException ex) {
+      // Expected.
+    }
+  }
 }
