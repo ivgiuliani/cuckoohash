@@ -176,6 +176,8 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
         return null;
       }
 
+      // We're intentionally biased towards adding items in T1 since that leads to
+      // slightly faster successful lookups.
       if (t1 == null) {
         T1[hash1(key)] = newV;
         return null;
