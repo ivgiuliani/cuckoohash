@@ -107,7 +107,8 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
     MapEntry<K, V> v;
 
     while ((v = putSafe(key, value)) != null) {
-      rehash();
+      // TODO in the original algorithm we do not grow the table but rather pick two new hash functions.
+      grow();
       key = v.key;
       value = v.value;
     }
@@ -197,16 +198,16 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
     T2 = new MapEntry[defaultStartSize / 2];
   }
 
-  private void rehash() {
+  private void grow() {
     int newSize = T1.length;
     do {
       newSize <<= 1;
-    } while (!rehash(newSize));
+    } while (!grow(newSize));
   }
 
   @SuppressWarnings("unchecked")
-  private boolean rehash(final int newSize) {
-    // Save old state as we may need to restore it if the rehash fails.
+  private boolean grow(final int newSize) {
+    // Save old state as we may need to restore it if the grow fails.
     MapEntry<K, V>[] oldT1 = T1;
     MapEntry<K, V>[] oldT2 = T2;
 
