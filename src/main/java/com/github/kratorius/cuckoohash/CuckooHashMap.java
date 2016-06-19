@@ -15,8 +15,11 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
 
   private static final int THRESHOLD_LOOP = 8;
   private static final int DEFAULT_START_SIZE = 16;
+  private static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
   private int defaultStartSize = DEFAULT_START_SIZE;
+  private float loadFactor = DEFAULT_LOAD_FACTOR;
+
   private int size = 0;
 
   /**
@@ -38,11 +41,8 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
   /**
    * Constructs an empty <tt>CuckooHashMap</tt> with the default initial capacity (16).
    */
-  @SuppressWarnings("unchecked")
   public CuckooHashMap() {
-    // Capacity is meant to be the total capacity of the two internal tables.
-    T1 = new MapEntry[defaultStartSize / 2];
-    T2 = new MapEntry[defaultStartSize / 2];
+    this(DEFAULT_START_SIZE, DEFAULT_LOAD_FACTOR);
   }
 
   /**
@@ -51,16 +51,40 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
    *
    * @param initialCapacity  the initial capacity.
    */
-  @SuppressWarnings("unchecked")
   public CuckooHashMap(int initialCapacity) {
+    this(initialCapacity, DEFAULT_LOAD_FACTOR);
+  }
+
+  /**
+   * Constructs an empty <tt>CuckooHashMap</tt> with the specified load factor.
+   *
+   * The load factor will cause the Cuckoo hash map to double in size when the number
+   * of items it contains has filled up more than <tt>loadFactor</tt>% of the available
+   * space.
+   *
+   * @param loadFactor  the load factor.
+   */
+  public CuckooHashMap(float loadFactor) {
+    this(DEFAULT_START_SIZE, loadFactor);
+  }
+
+  @SuppressWarnings("unchecked")
+  public CuckooHashMap(int initialCapacity, float loadFactor) {
     if (initialCapacity <= 0) {
       throw new IllegalArgumentException("initial capacity must be strictly positive");
+    }
+    if (loadFactor <= 0.f || loadFactor > 1.f) {
+      throw new IllegalArgumentException("load factor must be a value in the (0.0f, 1.0f] range.");
     }
 
     initialCapacity = roundPowerOfTwo(initialCapacity);
     defaultStartSize = initialCapacity;
+
+    // Capacity is meant to be the total capacity of the two internal tables.
     T1 = new MapEntry[initialCapacity / 2];
     T2 = new MapEntry[initialCapacity / 2];
+
+    this.loadFactor = loadFactor;
   }
 
   @Override
@@ -104,6 +128,14 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
     }
 
     final V old = get(key);
+    if (old == null) {
+      // If we need to grow after adding this item, it's probably best to grow before we add it.
+      final float currentLoad = (size() + 1) / (T1.length + T2.length);
+      if (currentLoad >= loadFactor) {
+        grow();
+      }
+    }
+
     MapEntry<K, V> v;
 
     while ((v = putSafe(key, value)) != null) {
@@ -171,6 +203,8 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
 
   @Override
   public V remove(Object key) {
+    // TODO halve the size of the hashmap when we delete enough keys.
+
     MapEntry<K, V> v1 = T1[hash1(key)];
     MapEntry<K, V> v2 = T2[hash2(key)];
     V oldValue = null;
@@ -198,6 +232,10 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
     T2 = new MapEntry[defaultStartSize / 2];
   }
 
+  /**
+   * Double the size of the map until we can successfully manage to re-add all the items
+   * we currently contain.
+   */
   private void grow() {
     int newSize = T1.length;
     do {
