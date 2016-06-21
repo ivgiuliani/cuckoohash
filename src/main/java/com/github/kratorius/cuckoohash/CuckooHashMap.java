@@ -15,7 +15,7 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
 
   private static final int THRESHOLD_LOOP = 8;
   private static final int DEFAULT_START_SIZE = 16;
-  private static final float DEFAULT_LOAD_FACTOR = 0.75f;
+  private static final float DEFAULT_LOAD_FACTOR = 0.45f;
 
   private int defaultStartSize = DEFAULT_START_SIZE;
   private float loadFactor = DEFAULT_LOAD_FACTOR;
