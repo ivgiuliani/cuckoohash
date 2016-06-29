@@ -11,8 +11,6 @@ import java.util.*;
 public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
   // TODO implement Cloneable and Serializable
 
-  private static final Random RANDOM = new Random();
-
   private static final int THRESHOLD_LOOP = 8;
   private static final int DEFAULT_START_SIZE = 16;
   private static final float DEFAULT_LOAD_FACTOR = 0.45f;
@@ -251,17 +249,10 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
         return null;
       } else {
         // Both tables have an item in the required position, we need to move things around.
-        if (RANDOM.nextBoolean()) {
-          // move from T1
-          key = t1.key;
-          value= t1.value;
-          T1[hashFunction1.hash(key)] = newV;
-        } else {
-          // move from T2
-          key = t2.key;
-          value= t2.value;
-          T2[hashFunction2.hash(key)] = newV;
-        }
+        // Prefer always moving from T1 for simplicity.
+        key = t1.key;
+        value= t1.value;
+        T1[hashFunction1.hash(key)] = newV;
       }
     }
 
