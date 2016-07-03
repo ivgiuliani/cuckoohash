@@ -470,11 +470,6 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
     return false;
   }
 
-  @Override
-  protected void finalize() throws Throwable {
-    super.finalize();
-  }
-
   private static int roundPowerOfTwo(int n) {
     n--;
 
