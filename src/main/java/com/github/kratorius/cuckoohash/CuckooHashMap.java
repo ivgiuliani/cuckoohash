@@ -434,7 +434,7 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
     List<V> values = new ArrayList<>(size);
 
     // Since we must not return the values in a specific order, it's more efficient to
-    // iterate over each array individually so we can exploit cache locality rathe than
+    // iterate over each array individually so we can exploit cache locality rather than
     // reuse the index over T1 and T2.
     for (int i = 0; i < T1.length; i++) {
       if (T1[i] != null) {
