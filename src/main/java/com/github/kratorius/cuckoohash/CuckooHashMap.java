@@ -27,15 +27,31 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
   /**
    * Immutable container of entries in the map.
    */
-  private static class MapEntry<K1, V1> {
-    final K1 key;
+  private static class MapEntry<V1> {
+    final Object key;
     final V1 value;
 
-    MapEntry(final K1 key, final V1 value) {
+    MapEntry(final Object key, final V1 value) {
       this.key = key;
       this.value = value;
     }
   }
+
+  /**
+   * Used as an internal key in the internal map in place of `null` keys supplied
+   * by the user.
+   *
+   * We're only interested in this object's hashcode. The `equals` method
+   * is used for convenience over implementing the same checks in the actual
+   * hashmap implementation and makes for an elegant implementation.
+   */
+  private static final Object KEY_NULL = new Object() {
+    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+    @Override
+    public boolean equals(Object obj) {
+      return obj == this || obj == null;
+    }
+  };
 
   public interface HashFunction {
     int hash(Object obj);
@@ -94,8 +110,8 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
     }
   }
 
-  private MapEntry<K, V>[] T1;
-  private MapEntry<K, V>[] T2;
+  private MapEntry<V>[] T1;
+  private MapEntry<V>[] T2;
 
   /**
    * Constructs an empty <tt>CuckooHashMap</tt> with the default initial capacity (16).
@@ -166,30 +182,27 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
   }
 
   private V get(Object key, V defaultValue) {
-    if (key == null) {
-      throw new NullPointerException();
-    }
+    Object actualKey = (key != null ? key : KEY_NULL);
 
-    MapEntry<K, V> v1 = T1[hashFunction1.hash(key)];
-    MapEntry<K, V> v2 = T2[hashFunction2.hash(key)];
+    MapEntry<V> v1 = T1[hashFunction1.hash(actualKey)];
+    MapEntry<V> v2 = T2[hashFunction2.hash(actualKey)];
 
     if (v1 == null && v2 == null) {
       return defaultValue;
-    } else if (v1 != null && v1.key.equals(key)) {
+    } else if (v1 != null && v1.key.equals(actualKey)) {
       return v1.value;
-    } else if (v2 != null && v2.key.equals(key)) {
+    } else if (v2 != null && v2.key.equals(actualKey)) {
       return v2.value;
     }
     return defaultValue;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public V put(K key, V value) {
-    if (key == null) {
-      throw new NullPointerException();
-    }
+    Object actualKey = (key != null ? key : KEY_NULL);
 
-    final V old = get(key);
+    final V old = get(actualKey);
     if (old == null) {
       // If we need to grow after adding this item, it's probably best to grow before we add it.
       final float currentLoad = (size() + 1) / (T1.length + T2.length);
@@ -198,10 +211,10 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
       }
     }
 
-    MapEntry<K, V> v;
+    MapEntry<V> v;
 
-    while ((v = putSafe(key, value)) != null) {
-      key = v.key;
+    while ((v = putSafe(actualKey, value)) != null) {
+      actualKey = v.key;
       value = v.value;
       if (!rehash()) {
         grow();
@@ -220,8 +233,8 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
    * @return the key we failed to move because of collisions or <tt>null</tt> if
    * successful.
    */
-  private MapEntry<K, V> putSafe(K key, V value) {
-    MapEntry<K, V> newV, t1, t2;
+  private MapEntry<V> putSafe(Object key, V value) {
+    MapEntry<V> newV, t1, t2;
     int loop = 0;
 
     while (loop++ < THRESHOLD_LOOP) {
@@ -262,21 +275,22 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
   @Override
   public V remove(Object key) {
     // TODO halve the size of the hashmap when we delete enough keys.
+    Object actualKey = (key != null ? key : KEY_NULL);
 
-    MapEntry<K, V> v1 = T1[hashFunction1.hash(key)];
-    MapEntry<K, V> v2 = T2[hashFunction2.hash(key)];
+    MapEntry<V> v1 = T1[hashFunction1.hash(actualKey)];
+    MapEntry<V> v2 = T2[hashFunction2.hash(actualKey)];
     V oldValue;
 
-    if (v1 != null && v1.key.equals(key)) {
-      oldValue = T1[hashFunction1.hash(key)].value;
-      T1[hashFunction1.hash(key)] = null;
+    if (v1 != null && v1.key.equals(actualKey)) {
+      oldValue = T1[hashFunction1.hash(actualKey)].value;
+      T1[hashFunction1.hash(actualKey)] = null;
       size--;
       return oldValue;
     }
 
-    if (v2 != null && v2.key.equals(key)) {
-      oldValue = T2[hashFunction2.hash(key)].value;
-      T2[hashFunction2.hash(key)] = null;
+    if (v2 != null && v2.key.equals(actualKey)) {
+      oldValue = T2[hashFunction2.hash(actualKey)].value;
+      T2[hashFunction2.hash(actualKey)] = null;
       size--;
       return oldValue;
     }
@@ -311,8 +325,8 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
   @SuppressWarnings("unchecked")
   private boolean grow(final int newSize) {
     // Save old state as we may need to restore it if the grow fails.
-    MapEntry<K, V>[] oldT1 = T1;
-    MapEntry<K, V>[] oldT2 = T2;
+    MapEntry<V>[] oldT1 = T1;
+    MapEntry<V>[] oldT2 = T2;
     HashFunction oldH1 = hashFunction1;
     HashFunction oldH2 = hashFunction2;
 
@@ -349,8 +363,8 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
   @SuppressWarnings("unchecked")
   private boolean rehash() {
     // Save old state as we may need to restore it if the grow fails.
-    MapEntry<K, V>[] oldT1 = T1;
-    MapEntry<K, V>[] oldT2 = T2;
+    MapEntry<V>[] oldT1 = T1;
+    MapEntry<V>[] oldT2 = T2;
     HashFunction oldH1 = hashFunction1;
     HashFunction oldH2 = hashFunction2;
 
@@ -415,15 +429,24 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public Set<K> keySet() {
     Set<K> set = new HashSet<>(size);
     for (int i = 0; i < T1.length; i++) {
       if (T1[i] != null) {
-        set.add(T1[i].key);
+        if (KEY_NULL.equals(T1[i].key)) {
+          set.add(null);
+        } else {
+          set.add((K) T1[i].key);
+        }
       }
       if (T2[i] != null) {
-        set.add(T2[i].key);
+        if (KEY_NULL.equals(T2[i].key)) {
+          set.add(null);
+        } else {
+          set.add((K) T2[i].key);
+        }
       }
     }
     return set;

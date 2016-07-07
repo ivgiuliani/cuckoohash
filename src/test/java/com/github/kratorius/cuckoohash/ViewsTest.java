@@ -68,6 +68,12 @@ public class ViewsTest extends TestCase {
     for (int i = 0; i < size; i++){
       assertTrue(keys.contains("key-" + i));
     }
+    assertFalse(keys.contains(null));
+
+    m.put(null, 31337);
+    keys = m.keySet();
+
+    assertTrue(keys.contains(null));
   }
 
   public void testValues_unique() {
