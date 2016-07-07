@@ -37,6 +37,14 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
     }
   }
 
+  /**
+   * Used as an internal key in the internal map in place of `null` keys supplied
+   * by the user.
+   *
+   * We're only interested in this object's hashcode. The `equals` method
+   * is used for convenience over implementing the same checks in the actual
+   * hashmap implementation and makes for an elegant implementation.
+   */
   private static final Object KEY_NULL = new Object() {
     @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
     @Override
