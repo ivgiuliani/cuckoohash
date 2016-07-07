@@ -37,6 +37,14 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
     }
   }
 
+  private static final Object KEY_NULL = new Object() {
+    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+    @Override
+    public boolean equals(Object obj) {
+      return obj == this || obj == null;
+    }
+  };
+
   public interface HashFunction {
     int hash(Object obj);
   }
@@ -166,18 +174,16 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
   }
 
   private V get(Object key, V defaultValue) {
-    if (key == null) {
-      throw new NullPointerException();
-    }
+    Object actualKey = (key != null ? key : KEY_NULL);
 
-    MapEntry<V> v1 = T1[hashFunction1.hash(key)];
-    MapEntry<V> v2 = T2[hashFunction2.hash(key)];
+    MapEntry<V> v1 = T1[hashFunction1.hash(actualKey)];
+    MapEntry<V> v2 = T2[hashFunction2.hash(actualKey)];
 
     if (v1 == null && v2 == null) {
       return defaultValue;
-    } else if (v1 != null && v1.key.equals(key)) {
+    } else if (v1 != null && v1.key.equals(actualKey)) {
       return v1.value;
-    } else if (v2 != null && v2.key.equals(key)) {
+    } else if (v2 != null && v2.key.equals(actualKey)) {
       return v2.value;
     }
     return defaultValue;
@@ -186,11 +192,9 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
   @SuppressWarnings("unchecked")
   @Override
   public V put(K key, V value) {
-    if (key == null) {
-      throw new NullPointerException();
-    }
+    Object actualKey = (key != null ? key : KEY_NULL);
 
-    final V old = get(key);
+    final V old = get(actualKey);
     if (old == null) {
       // If we need to grow after adding this item, it's probably best to grow before we add it.
       final float currentLoad = (size() + 1) / (T1.length + T2.length);
@@ -201,8 +205,8 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
 
     MapEntry<V> v;
 
-    while ((v = putSafe(key, value)) != null) {
-      key = (K) v.key;
+    while ((v = putSafe(actualKey, value)) != null) {
+      actualKey = v.key;
       value = v.value;
       if (!rehash()) {
         grow();
@@ -263,21 +267,22 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
   @Override
   public V remove(Object key) {
     // TODO halve the size of the hashmap when we delete enough keys.
+    Object actualKey = (key != null ? key : KEY_NULL);
 
-    MapEntry<V> v1 = T1[hashFunction1.hash(key)];
-    MapEntry<V> v2 = T2[hashFunction2.hash(key)];
+    MapEntry<V> v1 = T1[hashFunction1.hash(actualKey)];
+    MapEntry<V> v2 = T2[hashFunction2.hash(actualKey)];
     V oldValue;
 
-    if (v1 != null && v1.key.equals(key)) {
-      oldValue = T1[hashFunction1.hash(key)].value;
-      T1[hashFunction1.hash(key)] = null;
+    if (v1 != null && v1.key.equals(actualKey)) {
+      oldValue = T1[hashFunction1.hash(actualKey)].value;
+      T1[hashFunction1.hash(actualKey)] = null;
       size--;
       return oldValue;
     }
 
-    if (v2 != null && v2.key.equals(key)) {
-      oldValue = T2[hashFunction2.hash(key)].value;
-      T2[hashFunction2.hash(key)] = null;
+    if (v2 != null && v2.key.equals(actualKey)) {
+      oldValue = T2[hashFunction2.hash(actualKey)].value;
+      T2[hashFunction2.hash(actualKey)] = null;
       size--;
       return oldValue;
     }

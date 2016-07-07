@@ -17,19 +17,10 @@ public class BasicBehaviourTest extends TestCase {
     put(map, 'B', true,  null);
     put(map, new Character('A'), false, false);
 
-    try {
-      map.get(null);
-      fail("map did not reject null key");
-    } catch (NullPointerException e) {
-      // expected.
-    }
+    assertEquals(null, map.get(null));
 
-    try {
-      map.put(null, true);
-      fail("map did not reject null key");
-    } catch (NullPointerException e) {
-      // expected.
-    }
+    map.put(null, true);
+    assertEquals(true, (boolean) map.get(null));
 
     try {
       map.put('C', null);

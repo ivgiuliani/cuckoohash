@@ -51,4 +51,20 @@ public class GetTest extends TestCase {
 
     assertEquals("value-1023", m.get("key"));
   }
+
+  public void testGetNullKey() {
+    CuckooHashMap<String, String> m = new CuckooHashMap<>();
+
+    m.put("A", "hello");
+    m.put("B", "world");
+    m.put(null, "null");
+
+    assertEquals(3, m.size());
+    assertEquals("hello", m.get("A"));
+    assertEquals("world", m.get("B"));
+    assertEquals("null", m.get(null));
+
+    m.put(null, "null2");
+    assertEquals("null2", m.get(null));
+  }
 }

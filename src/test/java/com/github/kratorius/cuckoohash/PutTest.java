@@ -12,13 +12,13 @@ public class PutTest extends TestCase {
   @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
   public void testNullKey() {
     CuckooHashMap<Character, Boolean> m = new CuckooHashMap<>();
+    m.put(null, true);
+    assertFalse(m.isEmpty());
+    assertTrue(m.get(null));
 
-    try {
-      m.put(null, true);
-      fail("Accepted null key for put()");
-    } catch (NullPointerException e) {
-      // Expected.
-    }
+    m.put(null, false);
+    assertFalse(m.get(null));
+    assertTrue(m.containsKey(null));
   }
 
   public void testUpdate() {

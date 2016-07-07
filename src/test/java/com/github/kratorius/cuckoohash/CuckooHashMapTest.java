@@ -112,12 +112,7 @@ public class CuckooHashMapTest extends TestCase {
   }
 
   public void testContainsKey() {
-    try {
-      mCB.containsKey(null);
-      fail("accepted null key");
-    } catch (NullPointerException e) {
-      // Expected.
-    }
+    assertFalse(mCB.containsKey(null));
 
     mCB.put('A', true);
     mCB.put('B', true);
@@ -127,6 +122,10 @@ public class CuckooHashMapTest extends TestCase {
     assertTrue(mCB.containsKey('B'));
     assertTrue(mCB.containsKey('C'));
     assertFalse(mCB.containsKey('D'));
+    assertFalse(mCB.containsKey(null));
+
+    mCB.put(null, true);
+    assertTrue(mCB.containsKey(null));
   }
 
   public void testPutAll() {
