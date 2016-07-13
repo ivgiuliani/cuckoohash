@@ -3,7 +3,33 @@ package com.github.kratorius.cuckoohash;
 import java.util.*;
 
 /**
- * Cuckoo hash table based implementation of the <tt>Map</tt> interface.
+ * Cuckoo hash table based implementation of the <tt>Map</tt> interface. This
+ * implementation provides all of the optional map operations, and permits
+ * <code>null</code> values and the <code>null</code> key. This class makes no
+ * guarantees as to the order of the map; in particular, it does not guarantee
+ * that the order will remain constant over time.
+ * <p>
+ * This implementation provides constant-time performance for most basic operations
+ * (including but not limited to <tt>get</tt> and <tt>put</tt>). Specifically,
+ * the implementation guarantees O(1) time performance on <tt>get</tt> calls and
+ * amortized O(1) on <tt>put</tt>.
+ * <p>
+ * Iterating over the collection requires a time proportional to the capacity
+ * of the map. The default capacity of an empty map is 16. The map will resize
+ * its internal capacity whenever it grows past the load factor specified for the
+ * current instance. The default load factor for this map is <code>0.45</code>.
+ * Beware that this implementation can only guarantee non-amortized O(1) on
+ * <tt>get</tt> iff the load factor is relatively low (generally below 0.60).
+ * For more details, it's interesting to read <a href="http://www.it-c.dk/people/pagh/papers/cuckoo-jour.pdf">the
+ * original Cuckoo Hash Map paper</a>.
+ * <p>
+ * If many mappings are to be stored in a <tt>CuckooHashMap</tt> instance, creating
+ * it with a sufficiently large capacity will allow the mappings to be stored more
+ * efficiently than letting it perform automatic rehashing as needed to grow the table.
+ * <p>
+ * Note that this implementation is not synchronized and not thread safe. If you need
+ * thread safety, you'll need to implement your own locking around the map or wrap
+ * the instance around a call to {@link Collections#synchronizedMap(Map)}.
  *
  * @param <K>  the type of keys maintained by this map
  * @param <V>  the type of mapped values
