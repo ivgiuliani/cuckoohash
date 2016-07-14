@@ -179,17 +179,17 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
       throw new IllegalArgumentException("load factor must be a value in the (0.0f, 1.0f] range.");
     }
 
-    initialCapacity = roundPowerOfTwo(initialCapacity);
-    defaultStartSize = initialCapacity;
+    size = 0;
+    defaultStartSize = roundPowerOfTwo(initialCapacity);
 
     // Capacity is meant to be the total capacity of the two internal tables.
-    T1 = new MapEntry[initialCapacity / 2];
-    T2 = new MapEntry[initialCapacity / 2];
+    T1 = new MapEntry[defaultStartSize / 2];
+    T2 = new MapEntry[defaultStartSize / 2];
 
     this.loadFactor = loadFactor;
     this.hashFunctionFactory = hashFunctionFactory;
 
-    regenHashFunctions(initialCapacity / 2);
+    regenHashFunctions(defaultStartSize / 2);
   }
 
   @Override
@@ -331,6 +331,7 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
     size = 0;
     T1 = new MapEntry[defaultStartSize / 2];
     T2 = new MapEntry[defaultStartSize / 2];
+    regenHashFunctions(defaultStartSize / 2);
   }
 
   private void regenHashFunctions(final int size) {
