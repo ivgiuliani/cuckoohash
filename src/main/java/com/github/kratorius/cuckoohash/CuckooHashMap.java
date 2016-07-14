@@ -35,7 +35,7 @@ import java.util.*;
  * @param <V>  the type of mapped values
  */
 public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
-  // TODO implement Cloneable and Serializable
+  // TODO implement Cloneable, Serializable and fail fast iterators.
 
   private static final int THRESHOLD_LOOP = 8;
   private static final int DEFAULT_START_SIZE = 16;
@@ -44,7 +44,7 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
   private int defaultStartSize = DEFAULT_START_SIZE;
   private float loadFactor = DEFAULT_LOAD_FACTOR;
 
-  private HashFunctionFactory hashFunctionFactory;
+  private final HashFunctionFactory hashFunctionFactory;
   private HashFunction hashFunction1;
   private HashFunction hashFunction2;
 
