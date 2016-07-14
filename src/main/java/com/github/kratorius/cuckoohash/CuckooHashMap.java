@@ -34,6 +34,7 @@ import java.util.*;
  * @param <K>  the type of keys maintained by this map
  * @param <V>  the type of mapped values
  */
+@SuppressWarnings("WeakerAccess")
 public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
   // TODO implement Cloneable, Serializable and fail fast iterators.
 
