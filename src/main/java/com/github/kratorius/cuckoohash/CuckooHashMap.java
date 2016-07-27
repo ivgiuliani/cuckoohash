@@ -214,13 +214,12 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V> 
     MapEntry<V> v1 = T1[hashFunction1.hash(actualKey)];
     MapEntry<V> v2 = T2[hashFunction2.hash(actualKey)];
 
-    if (v1 == null && v2 == null) {
-      return defaultValue;
-    } else if (v1 != null && v1.key.equals(actualKey)) {
+    if (v1 != null && v1.key.equals(actualKey)) {
       return v1.value;
     } else if (v2 != null && v2.key.equals(actualKey)) {
       return v2.value;
     }
+
     return defaultValue;
   }
 
